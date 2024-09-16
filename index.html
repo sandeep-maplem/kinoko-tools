@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ダメージ計算ツール</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>ダメージ計算ツール</h1>
+        
+        <label for="criticalDamage">会心ダメージ (%):</label>
+        <input type="number" id="criticalDamage" placeholder="会心ダメージを入力">
+
+        <label for="criticalResistance">会心抵抗 (%):</label>
+        <input type="number" id="criticalResistance" placeholder="会心抵抗を入力">
+
+        <button onclick="calculate()">計算する</button>
+
+        <h2>結果</h2>
+        <p>ダメージ倍率: <span id="damageMultiplier">-</span> %</p>
+        <p>最低保証値になる会心ダメ: <span id="minGuaranteedMultiplier">-</span> %</p>
+        <p>※最低保証倍率は会心抵抗の1.5倍です</p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
