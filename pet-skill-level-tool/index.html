@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skill Level Table</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+  </style>
+</head>
+<body>
+  <h1>Skill Level Table</h1>
+  <label for="skill-select">Select a skill:</label>
+  <select id="skill-select">
+    <option value="">-- Select a skill --</option>
+  </select>
+
+  <table id="skill-table" style="display: none;">
+    <thead>
+      <tr>
+        <th>Level</th>
+        <th>Effect</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    // Skill data
+    const skills = [
+        {type:"separator", label:"R"},
+        {name:"キノコ連撃", effect: "連撃ダメージ+%f%", baseValues: [150], increments: [30]},
+        {name:"反射反撃", effect: "反撃ダメージ+%f%", baseValues: [150], increments: [30]},
+        {name:"強化通常攻撃", effect: "通常攻撃ダメージ+%f%", baseValues: [120], increments: [24]},
+        {name:"能力技能", effect: "技能ダメージ+%f%", baseValues: [40], increments: [8]},
+        {name:"強化された、行け", effect: "仲間のダメージ+%f%", baseValues: [40], increments: [8]},
+        {name:"憤怒加算", effect: "会心ダメージ加算+%f%", baseValues: [75], increments: [15]},
+        {name:"鉄桶回避", effect: "会心抵抗加算+%f%", baseValues: [75], increments: [15]},
+        {name:"再生能力", effect: "体力回復加算+%f%", baseValues: [10], increments: [2]},
+        {type:"separator", label:"HR"},
+        {name:"速いが鈍い", effect: "連撃乗算+%f%、技能会心ダメージ-%f%", baseValues: [7.5,5], increments: [1.5,1]},
+        {name:"研鈍妖斬", effect: "反撃乗算+%f%、技能会心ダメージ-%f%", baseValues: [7.5,5], increments: [1.5,1]},
+        {name:"器用貧乏", effect: "技能会心ダメージ+%f%、連撃乗算-%f%", baseValues: [15,2.5], increments: [3,0.5]},
+        {name:"惰性気体", effect: "技能会心ダメージ+%f%、反撃乗算-%f%", baseValues: [15,2.5], increments: [3,0.5]},
+        {name:"背後の刃", effect: "反撃乗算+%f%、連撃乗算-%f%", baseValues: [7.5,2.5], increments: [1.5,0.5]},
+        {name:"単独進攻", effect: "連撃乗算+%f%、反撃乗算-%f%", baseValues: [7.5,2.5], increments: [1.5,0.5]},
+        {name:"長命比べ", effect: "このペットの体力性能+%f%、攻撃性能-%f%", baseValues: [15,5], increments: [3,1]},
+        {name:"紙防御", effect: "このペットの体力性能+%f%、防御性能-%f%", baseValues: [15,5], increments: [3,1]},
+        {name:"脆弱マスター", effect: "このペットの攻撃性能+%f%、防御性能-%f%", baseValues: [15,5], increments: [3,1]},
+        {name:"耐久軟弱", effect: "このペットの攻撃性能+%f%、体力性能-%f%", baseValues: [15,5], increments: [3,1]},
+        {name:"重厚甲冑", effect: "このペットの防御性能+%f%、体力性能-%f%", baseValues: [15,5], increments: [3,1]},
+        {name:"安定主義", effect: "このペットの防御性能+%f%、攻撃性能-%f%", baseValues: [15,5], increments: [3,1]},
+        {name:"染毒矢尻", effect: "連撃時、60%の確率で連撃ダメージ+%f%、40%の確率で連撃ダメージ-%f%", baseValues: [0.2,0.1], increments: [0.02,0.01]},
+        {name:"中庸の道", effect: "反撃時、60%の確率で反撃ダメージ+%f%、40%の確率で反撃ダメージ-%f%", baseValues: [0.2,0.1], increments: [0.02,0.01]},
+        {name:"進退窮まる", effect: "技能発動時、75%の確率で技能ダメージ+%f%、25%の確率で技能ダメージ-%f%", baseValues: [0.2,0.1], increments: [0.02,0.01]},
+        {name:"上上下下", effect: "仲間の攻撃時、75%の確率で仲間のダメージ倍率を%f%増加させ、25%の確率で仲間のダメージ倍率を%f%減少させる。", baseValues: [0.2,0.1], increments: [0.02,0.01]},
+        {name:"野良の味方", effect: "連撃ダメ+%f%、仲間会心ダメ-%f%", baseValues: [7.5,12.5], increments: [1.5,2.5]},
+        {name:"吉報を待つ", effect: "反撃ダメ+%f%、仲間会心ダメ-%f%", baseValues: [7.5,12.5], increments: [1.5,2.5]},
+        {name:"他損自利", effect: "技能ダメ+%f%、仲間会心ダメ-%f%", baseValues: [15,12.5], increments: [3,2.5]},
+        {name:"利他自損", effect: "仲間ダメ+%f%、技能ダメ-%f%", baseValues: [37.5,5], increments: [7.5,1]},
+        {name:"逆境同舟", effect: "仲間ダメ+%f%、反撃ダメ-%f%", baseValues: [37.5,2.5], increments: [7.5,0.5]},
+        {name:"克己復傷", effect: "仲間ダメ+%f%、連撃ダメ-%f%", baseValues: [37.5,2.5], increments: [7.5,0.5]},
+        {type:"separator", label:"SR"},
+        {name:"集結超連撃", effect: "連撃乗算+%f%", baseValues: [5], increments: [1]},
+        {name:"超反射反撃", effect: "反撃乗算+%f%", baseValues: [5], increments: [1]},
+        {name:"超絶通常攻撃", effect: "通常攻撃乗算+%f%", baseValues: [4], increments: [0.8]},
+        {name:"スーパープラス", effect: "技能会心ダメージ+%f%", baseValues: [10], increments: [2]},
+        {name:"完全不制御", effect: "仲間会心ダメージ+%f%", baseValues: [25], increments: [5]},
+        {name:"正当防衛", effect: "通常攻撃ダメージ軽減+%f%", baseValues: [2.5], increments: [0.5]},
+        {name:"精密防衛", effect: "技能ダメージ軽減+%f%", baseValues: [2.5], increments: [0.5]},
+        {name:"反射無効", effect: "反撃ダメージ軽減+%f%", baseValues: [2.5], increments: [0.5]},
+        {name:"恨み十分", effect: "連撃ダメージ軽減+%f%", baseValues: [2.5], increments: [0.5]},
+        {name:"敵意一心", effect: "仲間ダメージ軽減+%f%", baseValues: [2.5], increments: [0.5]},
+        {name:"迂回作戦", effect: "BOSSダメージ軽減+%f%", baseValues: [2.5], increments: [0.5]},
+        {name:"強敵育我", effect: "BOSSダメージ+%f%", baseValues: [15], increments: [3]},
+        {name:"快速治癒", effect: "治癒量+%f%", baseValues: [0.05], increments: [0.01]},
+        {name:"異常状態免疫", effect: "被妨害時間-%f%", baseValues: [2.5], increments: [0.5]},
+        {name:"寿命延長", effect: "このペットの体力性能+%f%", baseValues: [10], increments: [2]},
+        {name:"短気体質", effect: "このペットの攻撃性能+%f%", baseValues: [10], increments: [2]},
+        {name:"銅塀鉄壁", effect: "このペットの防御性能+%f%", baseValues: [10], increments: [2]},
+        {type:"separator", label:"UR+"},
+        {name:"スーパーリーグ", effect: "連撃乗算+%f%、仲間会心ダメージ+%f%", baseValues: [5,25], increments: [1,5]},
+        {name:"全方位打撃", effect: "連撃乗算+%f%、通常攻撃乗算+%f%", baseValues: [5,4], increments: [1,0.8]},
+        {name:"全能制御術", effect: "反撃乗算+%f%、仲間会心ダメージ+%f%", baseValues: [5,25], increments: [1,5]},
+        {name:"逆行制御術", effect: "反撃乗算+%f%、通常攻撃乗算+%f%", baseValues: [5,4], increments: [1,0.8]},
+        {name:"爆裂コスモ", effect: "技能会心ダメージ+%f%、仲間会心ダメージ+%f%", baseValues: [10,25], increments: [2,5]},
+        {name:"無限爆発打撃", effect: "技能会心ダメージ+%f%、通常攻撃乗算+%f%", baseValues: [10,4], increments: [2,0.8]},
+        {name:"天性の大爆発", effect: "このペットの体力、攻撃、防御性能+%f%", baseValues: [10], increments: [2]},
+        {name:"多重発射", effect: "連撃が50%の確率で目標の現在体力値%f%の追加ダメージを与える", baseValues: [0.5], increments: [0.05]},
+        {name:"如羽流行", effect: "連撃が50%の確率で自身の最大体力の%f%を回復", baseValues: [0.1], increments: [0.01]},
+        {name:"風軌斬裂", effect: "発動技を発動時、追加で目標の現在体力値%f%のダメージを与える", baseValues: [0.5], increments: [0.05]},
+        {name:"無限夢幻", effect: "技能会心発生時、発動技ダメージ+%f%、持続8秒", baseValues: [6], increments: [0.6]},
+        {name:"重拳反撃", effect: "反撃時、50%の確率で自身の現在体力値%f%の追加ダメージを与える", baseValues: [0.5], increments: [0.05]},
+        {name:"激怒狂斬", effect: "自身の体力が50%を超えている時、毎秒攻撃力+%f%、最大スタック30回", baseValues: [0.4], increments: [0.04]},
+        {name:"急所直撃", effect: "戦闘開始後、通常攻撃のたびに%f％の確率で目標を重症にし、目標の回復と治癒量-50%、持続1秒", baseValues: [8], increments: [0.8]},
+        {name:"速度超過禁止", effect: "戦闘開始後、すべての敵の発動技の効果時間-%f%", baseValues: [8], increments: [0.8]},
+        {name:"アンテナ誘雷", effect: "戦闘開始後、全ての敵は会心のたびに10％の確率で反動を受ける。この反動で範囲内すべての敵は通常攻撃%f%の範囲ダメージを受け、会心ダメージ-15%、持続1秒", baseValues: [80], increments: [8]},
+        {name:"神託の触れ", effect: "仲間会心時25%の確率で対象の現在の体力の%f%の追加ダメージを与える。", baseValues: [0.5], increments: [0.05]},
+        {name:"秘術の光輝", effect: "仲間会心時25％の確率で自身の最大体力の%f%を回復する。", baseValues: [0.1], increments: [0.01]},
+    ];
+
+    // Populate the dropdown
+    const skillSelect = document.getElementById("skill-select");
+    skills.forEach((skill, index) => {
+      if (skill.type === "separator") {
+        const separator = document.createElement("option");
+        separator.textContent = `----${skill.label}----`;
+        separator.disabled = true;
+        separator.style.fontStyle = "italic";
+        skillSelect.appendChild(separator);
+      } else {
+        const option = document.createElement("option");
+        option.value = index;
+        option.textContent = skill.name;
+        skillSelect.appendChild(option);
+      }
+    });
+
+    // Handle skill selection
+    skillSelect.addEventListener("change", (event) => {
+      const selectedIndex = event.target.value;
+      const skillTable = document.getElementById("skill-table");
+      const tableBody = skillTable.querySelector("tbody");
+
+      // Clear previous table rows
+      tableBody.innerHTML = "";
+
+      if (selectedIndex === "") {
+        skillTable.style.display = "none";
+        return;
+      }
+
+      const skill = skills[selectedIndex];
+
+      // Populate the table with levels and effects
+      for (let level = 1; level <= 120; level += (level === 1 ? 9 : 10)) {
+        // Calculate values for all placeholders
+        const values = skill.baseValues.map((baseValue, index) => {
+          return baseValue + skill.increments[index] * Math.ceil((level - 1) / 10);
+        });
+
+        // Replace all placeholders in the effect string
+        let effect = skill.effect;
+        values.forEach((value, index) => {
+        const regex = new RegExp(`%${String.fromCharCode(102 + index)}%`, "g"); // %f%, %g%, etc.
+        effect = effect.replace(regex, value.toFixed(2) + "%");
+        });
+
+
+        // Create table row
+        const row = document.createElement("tr");
+        const levelCell = document.createElement("td");
+        const effectCell = document.createElement("td");
+
+        levelCell.textContent = `Lv${level}`;
+        effectCell.textContent = effect;
+
+        row.appendChild(levelCell);
+        row.appendChild(effectCell);
+        tableBody.appendChild(row);
+      }
+
+      skillTable.style.display = "table";
+    });
+  </script>
+</body>
+</html>
