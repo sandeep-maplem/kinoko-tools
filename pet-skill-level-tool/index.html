@@ -27,17 +27,18 @@
   </style>
 </head>
 <body>
-  <h1>Skill Level Table</h1>
-  <label for="skill-select">Select a skill:</label>
+  <h1>レベル別ペット受動ステータスの数値</h1>
+  <p>速度超過禁止や鉄桶回避などの受動ステータスが、ペットLv1〜120になった際にどんな数値になるか調べるツールです。</p>
+  <label for="skill-select">受動ステータスを選択してください</label>
   <select id="skill-select">
-    <option value="">-- Select a skill --</option>
+    <option value="">-- 受動ステータス--</option>
   </select>
 
   <table id="skill-table" style="display: none;">
     <thead>
       <tr>
-        <th>Level</th>
-        <th>Effect</th>
+        <th>Lv</th>
+        <th>効果</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -151,7 +152,7 @@
       const skill = skills[selectedIndex];
 
       // Populate the table with levels and effects
-      for (let level = 1; level <= 100; level += (level === 1 ? 9 : 10)) {
+      for (let level = 1; level <= 120; level += (level === 1 ? 9 : 10)) {
         // Calculate values for all placeholders
         const values = skill.baseValues.map((baseValue, index) => {
           return baseValue + skill.increments[index] * Math.ceil((level - 1) / 10);
